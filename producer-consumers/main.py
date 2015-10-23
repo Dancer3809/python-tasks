@@ -19,8 +19,6 @@ class ProcessThread(Thread):
         self.stoprequest = threading.Event()
 
     def run(self):
-        #logger.info(self.stoprequest.isSet() and self.line_queue.empty())
-        #logger.info(self.line_queue.empty())
         while not (self.stoprequest.isSet() and self.lines_queue.empty()):
             # Get the work from the queue
             line = self.lines_queue.get()
