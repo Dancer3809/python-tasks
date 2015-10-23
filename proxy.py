@@ -3,8 +3,7 @@ class Proxy(object):
         self.__impl = impl
 
     def __setattr__(self, name, value):
-        print self.__class__
-        if name == "_%s__impl" % self.__class__.__name__:
+        if name == "_{}__impl".format(self.__class__.__name__):
             object.__setattr__(self, name, value)
         else:
             self.__impl.__setattr__(name, value)
