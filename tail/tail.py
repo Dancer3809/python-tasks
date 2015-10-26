@@ -2,32 +2,51 @@
 
 import argparse
 from sys import stdout
-from os import SEEK_END, SEEK_SET
+from os import SEEK_END
 
 def read_line(infile, lines):
-    # last read position
+    BLOCK_SIZE = 1024
+    CR = "\n"
     position = 0
+    infile.seek(0, SEEK_END)
+    file_size  = infile.tell()
     buff = ""
+    chunk = ""
+    splits = []
     while lines:
-        # Move to the previous char from the last read position
-        position = position + 1
-        try:
-            infile.seek(-1 * position, SEEK_END)
-        except IOError:
-            if buff:
-                # Return all what we have
+        if not splits:
+            # Read new chunk
+            try:
+                # Try to read new chunk
+                new_position = position+BLOCK_SIZE
+                infile.seek(-new_position, SEEK_END)
+                # Store new position
+                position = new_position
+                chunk = infile.read(position)
+            except IOError:
+                # No more file
+                infile.seek(0)
+                # Read all that remains
+                chunk = infile.read(file_size - position)
+
+            # Split chunk into lines
+            splits = chunk.splitlines(True)
+
+        if splits:
+            # Extract line
+            line = splits.pop()
+            buff = line + buff
+
+            if splits:
+                # If we have other lines
                 yield buff
-            raise StopIteration()
-        char = infile.read(1)
-
-        # Return buffer if we've found the new line
-        if char == "\n" and buff:
-            yield buff
-            lines = lines - 1
-            buff = ""
-
-        # Prepend last read char to buffer
-        buff = char + buff
+                buff=""
+                lines = lines - 1
+        else:
+            # No more chunks
+            if buff:
+                yield buff
+            return
 
 def main():
     parser = argparse.ArgumentParser()
