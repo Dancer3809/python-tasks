@@ -33,5 +33,3 @@ Write an application which spawns several children threads or processes (based o
 
 Compare a performance difference between the two solutions for alice.txt.
 
-# TODO: Add thread Events for listening for completed lines processing
-# TODO: Add process implementation
